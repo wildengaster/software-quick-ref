@@ -1,0 +1,227 @@
+// ===== JSON 文件数据库 =====
+// 使用 JSON 文件持久化存储，无需原生编译的 SQLite
+
+const fs = require('fs');
+const path = require('path');
+
+const DB_DIR = path.join(__dirname, 'database');
+const DB_FILE = path.join(DB_DIR, 'db.json');
+
+// 确保数据库目录存在
+if (!fs.existsSync(DB_DIR)) {
+  fs.mkdirSync(DB_DIR, { recursive: true });
+}
+
+// ===== 初始数据 =====
+const initialSoftware = [
+  { id: 'python', name: 'Python / Jupyter', icon: '🐍', color: '#3776ab', bgColor: '#e8f1fa', version: 'Python 3.10+ / Jupyter Notebook 7+', description: '数据分析、可视化、科学计算的首选工具' },
+  { id: 'mysql', name: 'MySQL', icon: '🗄️', color: '#00758f', bgColor: '#e6f4f7', version: 'MySQL 8.0 / Workbench 8.0', description: '关系型数据库管理，SQL 查询与数据操作' },
+  { id: 'matlab', name: 'MATLAB', icon: '📊', color: '#e1673a', bgColor: '#fdf0eb', version: 'MATLAB R2023a / R2023b', description: '数学计算、算法开发、数据可视化与建模' },
+  { id: 'eclipse', name: 'Java / Eclipse', icon: '☕', color: '#e76f00', bgColor: '#fef5ec', version: 'Eclipse IDE 2023+ / JDK 17+', description: 'Java 开发环境配置、项目创建与调试' },
+  { id: 'illustrator', name: 'Photoshop / Illustrator', icon: '🎨', color: '#6e64ce', bgColor: '#f0eef9', version: 'Adobe 2024 (CC)', description: '图形设计、图像处理、矢量绘图' },
+  { id: 'autocad', name: 'AutoCAD', icon: '📐', color: '#c8102e', bgColor: '#fdecef', version: 'AutoCAD 2024', description: '工程制图、二维绘图与三维建模' }
+];
+
+const initialTutorials = [
+  { id: 1, softwareId: 'python', title: 'Jupyter Notebook 安装与启动', difficulty: '入门', steps: [
+    { text: '打开命令提示符（Win+R 输入 cmd），输入安装命令' },
+    { text: '等待安装完成，看到 Successfully installed 提示即成功' },
+    { text: '在目标文件夹地址栏输入 jupyter notebook 回车启动' },
+    { text: '浏览器自动打开 Notebook 界面，点击 New → Python 3 创建笔记本' }
+  ]},
+  { id: 2, softwareId: 'python', title: '数据可视化中文乱码解决', difficulty: '进阶', steps: [
+    { text: '在代码开头导入 matplotlib，设置中文字体参数' },
+    { text: "添加 plt.rcParams['font.sans-serif'] = ['SimHei'] 解决中文显示" },
+    { text: "添加 plt.rcParams['axes.unicode_minus'] = False 解决负号显示" },
+    { text: '重新运行绘图代码，中文标题和坐标轴正常显示' }
+  ]},
+  { id: 3, softwareId: 'python', title: '第三方库安装与虚拟环境', difficulty: '入门', steps: [
+    { text: '使用 pip install 包名 安装第三方库，如 pip install numpy' },
+    { text: '创建虚拟环境：python -m venv myenv' },
+    { text: '激活虚拟环境：myenv\\Scripts\\activate' },
+    { text: '在虚拟环境中安装所需库，避免版本冲突' }
+  ]},
+  { id: 4, softwareId: 'mysql', title: 'MySQL 服务启动与连接', difficulty: '入门', steps: [
+    { text: '打开服务管理器（Win+R 输入 services.msc），找到 MySQL80 服务' },
+    { text: '右键启动服务，或命令行输入 net start mysql80' },
+    { text: '打开 MySQL Workbench，点击已配置的连接进入管理界面' },
+    { text: '在 Query 窗口输入 SQL 语句，点击闪电图标执行' }
+  ]},
+  { id: 5, softwareId: 'mysql', title: '创建数据库与数据表', difficulty: '入门', steps: [
+    { text: 'CREATE DATABASE 数据库名; 创建新数据库' },
+    { text: 'USE 数据库名; 切换到目标数据库' },
+    { text: 'CREATE TABLE 表名 (字段名 类型 约束, ...); 创建数据表' },
+    { text: 'INSERT INTO 表名 VALUES (...); 插入测试数据' }
+  ]},
+  { id: 6, softwareId: 'mysql', title: '数据查询与多表连接', difficulty: '进阶', steps: [
+    { text: 'SELECT * FROM 表名 WHERE 条件; 基础条件查询' },
+    { text: '使用 JOIN 连接多表：SELECT ... FROM A JOIN B ON A.id = B.aid' },
+    { text: '使用 GROUP BY 分组统计，配合 COUNT/SUM/AVG 聚合函数' },
+    { text: '使用 ORDER BY 排序，LIMIT 限制返回行数' }
+  ]},
+  { id: 7, softwareId: 'matlab', title: 'MATLAB 基本操作与矩阵运算', difficulty: '入门', steps: [
+    { text: '启动 MATLAB，在命令窗口直接输入数学表达式进行计算' },
+    { text: '创建矩阵：A = [1 2 3; 4 5 6; 7 8 9]，分号分隔行' },
+    { text: "矩阵运算：A*B（矩阵乘法）、A.*B（元素乘法）、A'（转置）" },
+    { text: '使用 disp() 或直接输入变量名查看结果，分号结尾则不显示输出' }
+  ]},
+  { id: 8, softwareId: 'matlab', title: '二维三维绘图', difficulty: '进阶', steps: [
+    { text: 'plot(x, y) 绘制二维线图，x 和 y 为同长度向量' },
+    { text: "添加标题和标签：title('标题')、xlabel('X轴')、ylabel('Y轴')" },
+    { text: 'plot3(x, y, z) 绘制三维曲线，surf(X,Y,Z) 绘制三维曲面' },
+    { text: '使用 subplot 在一个窗口中绘制多个子图' }
+  ]},
+  { id: 9, softwareId: 'matlab', title: '脚本编写与函数定义', difficulty: '进阶', steps: [
+    { text: '点击 New Script 创建 .m 脚本文件' },
+    { text: '在脚本中编写多行代码，以分号结尾减少输出' },
+    { text: '定义函数：function [输出] = 函数名(输入)，保存为同名 .m 文件' },
+    { text: '在命令窗口调用函数，或在其他脚本中引用' }
+  ]},
+  { id: 10, softwareId: 'eclipse', title: 'Eclipse 项目导入与配置', difficulty: '入门', steps: [
+    { text: 'File → Import → General → Existing Projects into Workspace' },
+    { text: '选择项目根目录，勾选项目，点击 Finish 完成导入' },
+    { text: '右键项目 → Properties → Java Build Path 检查依赖配置' },
+    { text: '确认 JRE 系统库正确，缺少的库通过 Add JARs 添加' }
+  ]},
+  { id: 11, softwareId: 'eclipse', title: 'Java 程序编写与运行', difficulty: '入门', steps: [
+    { text: '右键 src → New → Class 创建 Java 类，勾选 public static void main' },
+    { text: '在 main 方法中编写代码，使用 System.out.println 输出' },
+    { text: '右键代码区域 → Run As → Java Application 运行程序' },
+    { text: '在 Console 窗口查看输出结果' }
+  ]},
+  { id: 12, softwareId: 'eclipse', title: '断点调试与错误排查', difficulty: '进阶', steps: [
+    { text: '在代码行号左侧双击，添加蓝色断点标记' },
+    { text: '右键 → Debug As → Java Application 进入调试模式' },
+    { text: '使用 F5（Step Into）、F6（Step Over）逐步执行' },
+    { text: '在 Variables 视图查看变量值，定位逻辑错误' }
+  ]},
+  { id: 13, softwareId: 'illustrator', title: 'Illustrator 描边与填充操作', difficulty: '入门', steps: [
+    { text: '选择工具选中目标图形，查看左侧工具栏颜色面板' },
+    { text: '双击填色方块选择颜色，描色方块设置描边颜色' },
+    { text: '在属性面板调整描边粗细，勾选对齐描边选项' },
+    { text: '执行对象 → 扩展外观后，重新选中图形即可填充新颜色' }
+  ]},
+  { id: 14, softwareId: 'illustrator', title: 'Photoshop 图层与蒙版', difficulty: '进阶', steps: [
+    { text: '在图层面板右下角点击新建图层按钮，或 Ctrl+Shift+N' },
+    { text: '选中图层点击添加图层蒙版按钮（带圆圈的矩形图标）' },
+    { text: '选择画笔工具，前景色设为黑色涂抹隐藏区域，白色显示' },
+    { text: '调整图层不透明度和混合模式，实现自然过渡效果' }
+  ]},
+  { id: 15, softwareId: 'illustrator', title: '导出与格式设置', difficulty: '入门', steps: [
+    { text: '文件 → 导出 → 导出为，选择目标格式（PNG/JPG/PDF）' },
+    { text: 'PNG 勾选透明背景，JPG 调整品质滑块（建议 80%+）' },
+    { text: '勾选画板选项，可导出多个画板为独立文件' },
+    { text: '点击导出，选择保存路径完成输出' }
+  ]},
+  { id: 16, softwareId: 'autocad', title: 'AutoCAD 基本绘图操作', difficulty: '入门', steps: [
+    { text: '命令行输入 L（Line）回车，点击起点和终点绘制直线' },
+    { text: '输入 C（Circle）回车，指定圆心和半径绘制圆' },
+    { text: '输入 REC（Rectangle）绘制矩形，输入 POL 绘制正多边形' },
+    { text: '使用 OSNAP（对象捕捉）精确捕捉端点、中点、交点' }
+  ]},
+  { id: 17, softwareId: 'autocad', title: '图层管理与标注', difficulty: '进阶', steps: [
+    { text: '输入 LA（Layer）打开图层管理器，新建粗实线、细实线等图层' },
+    { text: '设置各图层颜色、线型、线宽，不同图层绘制不同内容' },
+    { text: '输入 D（DimStyle）设置标注样式，调整箭头大小和文字高度' },
+    { text: '使用 DLI（线性标注）、DAL（对齐标注）进行尺寸标注' }
+  ]},
+  { id: 18, softwareId: 'autocad', title: '图纸打印与输出', difficulty: '进阶', steps: [
+    { text: 'Ctrl+P 打开打印对话框，选择打印机或 PDF 输出' },
+    { text: '选择图纸幅面（A4/A3），设置打印范围（窗口/范围/显示）' },
+    { text: '勾选居中打印和布满图纸，调整打印比例' },
+    { text: '预览确认无误后点击打印，输出最终图纸' }
+  ]}
+];
+
+const initialErrors = [
+  { id: 1, softwareId: 'python', keyword: 'pip不是内部命令', title: 'pip 不是内部或外部命令', version: 'Python 3.8+', severity: 'high', solution: ['打开系统环境变量设置：右键此电脑 → 属性 → 高级系统设置 → 环境变量', '在系统变量中找到 Path，点击编辑，新增 Python 安装路径和 Scripts 路径', '默认路径如：C:\\Users\\用户名\\AppData\\Local\\Programs\\Python\\Python310 和 ...\\Python310\\Scripts', '确认保存后重启命令提示符，输入 pip --version 验证是否修复'] },
+  { id: 2, softwareId: 'python', keyword: '中文乱码', title: 'Matplotlib 图表中文显示为方块/乱码', version: 'Python 3.6+', severity: 'medium', solution: ['在绘图代码前添加：import matplotlib.pyplot as plt', "设置中文字体：plt.rcParams['font.sans-serif'] = ['SimHei']", "修复负号显示：plt.rcParams['axes.unicode_minus'] = False", "如果 SimHei 不可用，尝试使用 ['Microsoft YaHei'] 或 ['KaiTi']"] },
+  { id: 3, softwareId: 'python', keyword: 'ModuleNotFoundError', title: "ModuleNotFoundError: No module named 'xxx'", version: 'Python 3.6+', severity: 'medium', solution: ['确认是否已安装该模块：pip list 查看已安装包列表', '未安装则执行：pip install 模块名', '如果使用了虚拟环境，确认已激活对应环境', 'Jupyter Notebook 中可使用 !pip install 模块名 直接安装'] },
+  { id: 4, softwareId: 'eclipse', keyword: 'Build path错误', title: 'Build path 错误：项目无法编译', version: 'Eclipse 2021+', severity: 'high', solution: ['右键项目 → Properties → Java Build Path → Libraries 选项卡', '检查 JRE System Library 是否有红色叉号，如有则移除后重新添加', '点击 Add Library → JRE System Library → 选择已安装的 JDK', '确认所有外部 JAR 包路径正确，Apply 后刷新项目（F5）'] },
+  { id: 5, softwareId: 'eclipse', keyword: '无法找到主类', title: 'Error: Could not find or load main class', version: 'JDK 11+', severity: 'medium', solution: ['检查 main 方法签名是否正确：public static void main(String[] args)', '确认类文件已保存编译，查看 Problems 视图是否有编译错误', '清理项目：Project → Clean，重新编译所有文件', '检查 Run Configuration 中 Main class 设置是否指向正确的类'] },
+  { id: 6, softwareId: 'mysql', keyword: '连接拒绝', title: "Can't connect to MySQL server (10061)", version: 'MySQL 8.0', severity: 'high', solution: ['检查 MySQL 服务是否启动：services.msc 中查看 MySQL80 服务状态', '命令行启动服务：net start mysql80', '确认端口 3306 未被占用：netstat -ano | findstr 3306', '检查防火墙设置，允许 3306 端口通信'] },
+  { id: 7, softwareId: 'mysql', keyword: 'Access denied', title: "Access denied for user 'root'@'localhost'", version: 'MySQL 8.0', severity: 'medium', solution: ['确认密码输入正确，MySQL 8.0 默认在安装时设置密码', '如果忘记密码，以管理员身份跳过授权表启动 MySQL', "执行 UPDATE mysql.user SET authentication_string=PASSWORD('新密码') WHERE User='root'", '刷新权限 FLUSH PRIVILEGES 后重启服务正常登录'] },
+  { id: 8, softwareId: 'matlab', keyword: '内存不足', title: 'Out of memory：MATLAB 内存不足错误', version: 'MATLAB R2020+', severity: 'medium', solution: ['使用 clear 命令清除不需要的变量释放内存', '检查矩阵大小，避免创建过大的临时矩阵', '增加虚拟内存：系统属性 → 高级 → 性能设置 → 虚拟内存', '使用 pack 命令整理内存碎片，或分块处理大数据'] },
+  { id: 9, softwareId: 'illustrator', keyword: '扩展外观无法填充', title: 'Illustrator 扩展外观后无法填充颜色', version: 'Adobe CC 2023+', severity: 'medium', solution: ['执行扩展外观后，图形会变为编组路径，需先取消编组（Ctrl+Shift+G）', '使用直接选择工具（白箭头 A）选中目标路径', '检查外观面板中是否有多个填色层，删除多余的填色属性', '重新设置填色颜色，确认色板中选中的是填色而非描边'] },
+  { id: 10, softwareId: 'illustrator', keyword: '找不到按钮', title: '不同版本 UI 界面找不到对应按钮', version: 'Adobe CC 2022+', severity: 'low', solution: ['使用顶部搜索栏：帮助 → 查找命令，直接搜索功能名称', '窗口菜单中查找对应面板名称，勾选后面板即显示', 'CC 2024 可使用上下文任务栏快速访问常用功能', '通过 窗口 → 工作区 → 重置基本功能 恢复默认布局'] },
+  { id: 11, softwareId: 'autocad', keyword: '快捷键无效', title: 'AutoCAD 快捷键/命令无响应', version: 'AutoCAD 2022+', severity: 'low', solution: ['检查是否在命令行输入状态，点击命令行确保获得焦点', '确认没有正在执行的命令，按 Esc 键取消当前操作', '检查命令别名设置：工具 → 自定义 → 编辑程序参数（acad.pgp）', '重置 AutoCAD 设置：开始菜单 → 重置设置为默认值'] },
+  { id: 12, softwareId: 'autocad', keyword: '图纸打印空白', title: '打印后图纸为空白', version: 'AutoCAD 2022+', severity: 'medium', solution: ['检查打印范围设置，确保选中的窗口区域包含所有图形', '确认图层未被关闭或冻结，打印设置中勾选打印所有图层', '检查线宽设置，细线在打印时可能太淡，调整打印线宽', '预览确认图形可见后再执行打印'] }
+];
+
+// ===== 数据库结构 =====
+function createInitialDB() {
+  return {
+    software: initialSoftware,
+    tutorials: initialTutorials,
+    errors: initialErrors,
+    submissions: [],
+    admins: [
+      { id: 1, username: 'admin', password: '$2a$10$XQeJkQPSKQPKQPKQPKQPKuQPKQPKQPKQPKQPKQPKQPKQPKQPKQPKQPK', role: 'admin', createdAt: new Date().toISOString() }
+    ],
+    stats: {
+      pageViews: {},
+      searchLogs: []
+    },
+    meta: {
+      nextTutorialId: 19,
+      nextErrorId: 13,
+      nextSubmissionId: 1,
+      nextAdminId: 2
+    }
+  };
+}
+
+// ===== 读取/写入数据库 =====
+let dbCache = null;
+
+function loadDB() {
+  if (dbCache) return dbCache;
+  
+  if (fs.existsSync(DB_FILE)) {
+    try {
+      dbCache = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+      return dbCache;
+    } catch (e) {
+      console.error('数据库文件损坏，重新创建:', e.message);
+    }
+  }
+  
+  // 文件不存在或损坏，从代码初始化
+  dbCache = createInitialDB();
+  saveDB();
+  return dbCache;
+}
+
+function saveDB() {
+  if (dbCache) {
+    try {
+      if (!fs.existsSync(DB_DIR)) {
+        fs.mkdirSync(DB_DIR, { recursive: true });
+      }
+      fs.writeFileSync(DB_FILE, JSON.stringify(dbCache, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('数据库写入失败（文件系统可能为只读），数据暂存于内存:', e.message);
+    }
+  }
+}
+
+// ===== 初始化管理员密码（使用 bcrypt） =====
+const bcrypt = require('bcryptjs');
+function initAdminPassword() {
+  const db = loadDB();
+  if (db.admins && db.admins[0] && db.admins[0].password.startsWith('$2a$10$XQeJkQ')) {
+    // 初始占位密码，替换为真实哈希
+    const hash = bcrypt.hashSync('admin123', 10);
+    db.admins[0].password = hash;
+    saveDB();
+    console.log('管理员初始密码已设置: admin / admin123');
+  }
+}
+
+// ===== 导出数据库操作方法 =====
+module.exports = {
+  loadDB,
+  saveDB,
+  initAdminPassword,
+  getDB: () => loadDB()
+};
