@@ -1,0 +1,10 @@
+node_modules/
+.git/
+.workbuddy/
+.codebuddy/
+dist/
+*.log
+deploy-guide.html
+render.yaml
+data.js
+README.md
