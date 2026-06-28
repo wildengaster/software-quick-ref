@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>专业课软件操作速查工具 - 学长学姐整理的精简操作指南</title>
+  <meta name="description" content="面向本专业学生的专业软件操作速查工具，精简操作步骤、图文对照、高频报错解决专区、关键词检索，一站式解决软件操作查阅繁琐的痛点。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ===== 导航栏 ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">速查工具</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#hero" class="nav-link active">首页</a>
+        <a href="#software" class="nav-link">软件分类</a>
+        <a href="#tutorials" class="nav-link">操作教程</a>
+        <a href="#errors" class="nav-link">报错专区</a>
+        <a href="#about" class="nav-link">关于</a>
+      </div>
+      <div class="nav-search">
+        <input type="text" id="navSearchInput" placeholder="搜索操作/报错..." autocomplete="off">
+        <button class="nav-search-btn" onclick="openSearchFromNav()">🔍</button>
+      </div>
+      <button class="nav-submit-btn" onclick="openSubmissionModal()">📝 投稿</button>
+      <a href="/admin.html" class="nav-admin-link" title="后台管理">⚙️</a>
+      <button class="nav-toggle" id="navToggle" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== Hero 区域 ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">学长学姐整理 · 适配课堂版本</div>
+      <h1 class="hero-title">
+        专业课软件操作<br>
+        <span class="gradient-text">速查工具</span>
+      </h1>
+      <p class="hero-subtitle">
+        精简操作步骤 · 图文对照 · 高频报错解决专区 · 关键词检索<br>
+        一站式解决专业软件操作查阅繁琐的痛点
+      </p>
+      <div class="hero-search">
+        <input type="text" id="heroSearchInput" placeholder="输入软件名称、操作或报错关键词..." autocomplete="off">
+        <button onclick="performSearch(document.getElementById('heroSearchInput').value)">
+          搜索
+        </button>
+      </div>
+      <div class="hero-tags">
+        <span class="hero-tag" onclick="filterBySoftware('python')">🐍 Python</span>
+        <span class="hero-tag" onclick="filterBySoftware('mysql')">🗄️ MySQL</span>
+        <span class="hero-tag" onclick="filterBySoftware('matlab')">📊 MATLAB</span>
+        <span class="hero-tag" onclick="filterBySoftware('eclipse')">☕ Java/Eclipse</span>
+        <span class="hero-tag" onclick="filterBySoftware('illustrator')">🎨 PS/AI</span>
+        <span class="hero-tag" onclick="filterBySoftware('autocad')">📐 AutoCAD</span>
+      </div>
+    </div>
+    <div class="hero-stats" id="heroStats"></div>
+  </section>
+
+  <!-- ===== 功能特色 ===== -->
+  <section class="features-section" id="features">
+    <div class="section-header">
+      <h2 class="section-title">为什么选择速查工具</h2>
+      <p class="section-desc">针对专业课软件操作中的真实痛点，提供精准解决方案</p>
+    </div>
+    <div class="features-grid" id="featuresGrid"></div>
+  </section>
+
+  <!-- ===== 软件分类 ===== -->
+  <section class="software-section" id="software">
+    <div class="section-header">
+      <h2 class="section-title">专业软件分类</h2>
+      <p class="section-desc">点击软件卡片查看详细操作教程与报错方案</p>
+    </div>
+    <div class="software-grid" id="softwareGrid"></div>
+  </section>
+
+  <!-- ===== 操作教程 ===== -->
+  <section class="tutorials-section" id="tutorials">
+    <div class="section-header">
+      <h2 class="section-title">操作教程</h2>
+      <p class="section-desc">图文步骤详解，每步都有操作指引</p>
+    </div>
+    <div class="tutorial-filters" id="tutorialFilters">
+      <button class="filter-btn active" onclick="filterTutorials('all', this)">全部</button>
+    </div>
+    <div class="tutorials-container" id="tutorialsContainer"></div>
+  </section>
+
+  <!-- ===== 报错专区 ===== -->
+  <section class="errors-section" id="errors">
+    <div class="section-header">
+      <h2 class="section-title">高频报错解决专区</h2>
+      <p class="section-desc">学长学姐验证有效的解决方案，按软件筛选或关键词搜索</p>
+      <div class="error-section-actions">
+        <button class="submit-error-btn" onclick="openSubmissionModal()">📝 我要投稿报错方案</button>
+      </div>
+    </div>
+    <div class="error-search-bar">
+      <input type="text" id="errorSearchInput" placeholder="输入报错关键词，如 pip、乱码、Build path..." oninput="searchErrors()" autocomplete="off">
+      <span class="search-icon">🔍</span>
+    </div>
+    <div class="error-filters" id="errorFilters">
+      <button class="filter-btn active" onclick="filterErrors('all', this)">全部</button>
+    </div>
+    <div class="errors-grid" id="errorsGrid"></div>
+    <div class="no-results" id="noResults" style="display:none;">
+      <p>没有找到匹配的报错方案</p>
+    </div>
+  </section>
+
+  <!-- ===== 关于 ===== -->
+  <section class="about-section" id="about">
+    <div class="about-container">
+      <div class="section-header">
+        <h2 class="section-title">关于本工具</h2>
+        <p class="section-desc">轻量化信息整合网页，一站式解决专业软件操作查阅痛点</p>
+      </div>
+      <div class="about-content">
+        <div class="about-card">
+          <div class="about-icon">🎯</div>
+          <h3>项目定位</h3>
+          <p>面向本专业全体在校生，在课堂实训、课后作业、期末课程设计时，快速查阅适配课堂版本的软件极简操作步骤与故障解决办法。</p>
+        </div>
+        <div class="about-card">
+          <div class="about-icon">💡</div>
+          <h3>解决痛点</h3>
+          <p>教程冗长、版本不匹配、无针对性精简步骤——本工具整合适配课堂版本的操作步骤与常见报错解决方案，告别跨平台搜寻冗长教程。</p>
+        </div>
+        <div class="about-card">
+          <div class="about-icon">📝</div>
+          <h3>内容来源</h3>
+          <p>内容由制作者依据课堂笔记、实操截图整理，同时支持学生投稿报错方案（经管理员审核后发布），持续扩充内容库。</p>
+        </div>
+        <div class="about-card">
+          <div class="about-icon">👥</div>
+          <h3>团队信息</h3>
+          <p><strong>组长：</strong>贾朝阳 P241012509（用户访谈、文本材料）<br><strong>组员：</strong>李功创 P241012513（代码编写）</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="logo-icon">⚡</span>
+        <span>专业课软件操作速查工具</span>
+      </div>
+      <p class="footer-desc">学长学姐整理 · 适配课堂版本 · 精简图文步骤 · 高频报错专区</p>
+      <div class="footer-divider"></div>
+      <p class="footer-copy">© 2024 专业课软件操作速查工具 · 仅供本专业学生学习使用</p>
+    </div>
+  </footer>
+
+  <!-- ===== 搜索结果弹窗 ===== -->
+  <div class="search-modal" id="searchModal" style="display:none;">
+    <div class="search-modal-overlay" onclick="closeSearchModal()"></div>
+    <div class="search-modal-content">
+      <div class="search-modal-header">
+        <h3 id="searchModalTitle">搜索结果</h3>
+        <button class="close-btn" onclick="closeSearchModal()">✕</button>
+      </div>
+      <div class="search-modal-body" id="searchModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== 教程详情弹窗 ===== -->
+  <div class="tutorial-modal" id="tutorialModal" style="display:none;">
+    <div class="tutorial-modal-overlay" onclick="closeTutorialModal()"></div>
+    <div class="tutorial-modal-content">
+      <div class="tutorial-modal-header">
+        <div>
+          <h3 id="tutorialModalTitle"></h3>
+          <span class="tutorial-modal-meta" id="tutorialModalMeta"></span>
+        </div>
+        <button class="close-btn" onclick="closeTutorialModal()">✕</button>
+      </div>
+      <div class="tutorial-modal-body" id="tutorialModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== 回到顶部 ===== -->
+  <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+  <!-- ===== 学生投稿弹窗 ===== -->
+  <div class="submission-modal" id="submissionModal" style="display:none;">
+    <div class="submission-modal-overlay" onclick="closeSubmissionModal()"></div>
+    <div class="submission-modal-content">
+      <div class="submission-modal-header">
+        <h3>📝 投稿报错方案</h3>
+        <button class="close-btn" onclick="closeSubmissionModal()">✕</button>
+      </div>
+      <div class="submission-modal-body">
+        <p class="submission-tip">分享你遇到并解决过的报错问题，管理员审核通过后将显示在报错专区，帮助更多同学。</p>
+        <div class="form-group">
+          <label>所属软件 *</label>
+          <select id="subSoftware"></select>
+        </div>
+        <div class="form-group">
+          <label>报错标题 *</label>
+          <input type="text" id="subTitle" placeholder="如：pip 不是内部或外部命令">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>搜索关键词 *</label>
+            <input type="text" id="subKeyword" placeholder="如：pip不是内部命令">
+          </div>
+          <div class="form-group">
+            <label>严重程度</label>
+            <select id="subSeverity">
+              <option value="high">高频</option>
+              <option value="medium" selected>常见</option>
+              <option value="low">偶尔</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>适用版本</label>
+            <input type="text" id="subVersion" placeholder="如：Python 3.8+">
+          </div>
+          <div class="form-group">
+            <label>你的名字（可选）</label>
+            <input type="text" id="subContributor" placeholder="匿名同学">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>解决步骤 *（每行一步）</label>
+          <textarea id="subSolution" rows="6" placeholder="每行输入一个解决步骤&#10;如：打开系统环境变量设置&#10;如：在 Path 中新增 Python 安装路径"></textarea>
+        </div>
+        <div id="submissionResult" style="display:none;"></div>
+      </div>
+      <div class="submission-modal-footer">
+        <button class="btn-cancel" onclick="closeSubmissionModal()">取消</button>
+        <button class="btn-submit" onclick="submitErrorSolution()">提交投稿</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
