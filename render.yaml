@@ -1,0 +1,12 @@
+services:
+  - type: web_service
+    name: software-quick-ref
+    runtime: node
+    repo: https://github.com/wildengaster/software-quick-ref
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    plan: free
