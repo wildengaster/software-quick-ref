@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台管理系统 - 专业课软件操作速查工具</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ===== 登录页 ===== -->
+  <div class="login-page" id="loginPage">
+    <div class="login-card">
+      <div class="login-header">
+        <span class="login-icon">🔐</span>
+        <h1>后台管理系统</h1>
+        <p>专业课软件操作速查工具 · 管理员登录</p>
+      </div>
+      <form class="login-form" onsubmit="return doLogin(event)">
+        <div class="form-group">
+          <label>用户名</label>
+          <input type="text" id="loginUsername" placeholder="请输入用户名" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="loginPassword" placeholder="请输入密码" required>
+        </div>
+        <div class="login-error" id="loginError"></div>
+        <button type="submit" class="login-btn">登 录</button>
+      </form>
+      <div class="login-hint">
+        默认账号：admin / admin123
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 管理后台 ===== -->
+  <div class="admin-page" id="adminPage" style="display:none;">
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-icon">⚡</span>
+        <span>速查工具管理</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="sidebar-link active" onclick="switchTab('dashboard')" data-tab="dashboard">
+          <span>📊</span> 数据看板
+        </a>
+        <a class="sidebar-link" onclick="switchTab('submissions')" data-tab="submissions">
+          <span>📝</span> 投稿审核
+          <span class="badge" id="pendingBadge" style="display:none;">0</span>
+        </a>
+        <a class="sidebar-link" onclick="switchTab('tutorials')" data-tab="tutorials">
+          <span>📖</span> 教程管理
+        </a>
+        <a class="sidebar-link" onclick="switchTab('errors')" data-tab="errors">
+          <span>🛡️</span> 报错管理
+        </a>
+        <a class="sidebar-link" onclick="switchTab('stats')" data-tab="stats">
+          <span>📈</span> 访问统计
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button onclick="logout()" class="logout-btn">退出登录</button>
+        <a href="/" class="back-to-site">← 返回前台</a>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="admin-main">
+      <!-- 顶部栏 -->
+      <header class="admin-header">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h2 id="pageTitle">数据看板</h2>
+        <div class="admin-user">
+          <span id="adminName">admin</span>
+          <span class="admin-avatar">👤</span>
+        </div>
+      </header>
+
+      <!-- 内容区 -->
+      <div class="admin-content">
+
+        <!-- ===== 数据看板 ===== -->
+        <div class="tab-content active" id="tab-dashboard">
+          <div class="stats-cards" id="dashboardStats"></div>
+          <div class="dashboard-grid">
+            <div class="dash-card">
+              <h3>各软件内容数量</h3>
+              <div id="softwareContentChart"></div>
+            </div>
+            <div class="dash-card">
+              <h3>报错严重程度分布</h3>
+              <div id="severityChart"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 投稿审核 ===== -->
+        <div class="tab-content" id="tab-submissions">
+          <div class="filter-tabs" id="submissionFilters">
+            <button class="filter-tab active" onclick="loadSubmissions('pending', this)">待审核</button>
+            <button class="filter-tab" onclick="loadSubmissions('approved', this)">已通过</button>
+            <button class="filter-tab" onclick="loadSubmissions('rejected', this)">已拒绝</button>
+            <button class="filter-tab" onclick="loadSubmissions('all', this)">全部</button>
+          </div>
+          <div id="submissionsList"></div>
+        </div>
+
+        <!-- ===== 教程管理 ===== -->
+        <div class="tab-content" id="tab-tutorials">
+          <div class="content-header">
+            <button class="btn-primary" onclick="openTutorialEditor()">+ 新增教程</button>
+          </div>
+          <div id="tutorialsList"></div>
+        </div>
+
+        <!-- ===== 报错管理 ===== -->
+        <div class="tab-content" id="tab-errors">
+          <div class="content-header">
+            <button class="btn-primary" onclick="openErrorEditor()">+ 新增报错方案</button>
+          </div>
+          <div id="errorsManageList"></div>
+        </div>
+
+        <!-- ===== 访问统计 ===== -->
+        <div class="tab-content" id="tab-stats">
+          <div class="stats-grid">
+            <div class="stats-card">
+              <h3>页面访问量</h3>
+              <div id="pageViewsStats"></div>
+            </div>
+            <div class="stats-card">
+              <h3>热门搜索词 TOP 20</h3>
+              <div id="topSearchesStats"></div>
+            </div>
+            <div class="stats-card">
+              <h3>最近搜索记录</h3>
+              <div id="recentSearchesStats"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== 教程编辑弹窗 ===== -->
+  <div class="modal" id="tutorialModal" style="display:none;">
+    <div class="modal-overlay" onclick="closeTutorialEditor()"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="tutorialModalTitle">新增教程</h3>
+        <button class="close-btn" onclick="closeTutorialEditor()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>所属软件</label>
+          <select id="tutSoftware"></select>
+        </div>
+        <div class="form-group">
+          <label>教程标题</label>
+          <input type="text" id="tutTitle" placeholder="如：Jupyter Notebook 安装与启动">
+        </div>
+        <div class="form-group">
+          <label>难度</label>
+          <select id="tutDifficulty">
+            <option value="入门">入门</option>
+            <option value="进阶">进阶</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>操作步骤（每行一步）</label>
+          <textarea id="tutSteps" rows="8" placeholder="每行输入一个操作步骤&#10;如：打开命令提示符输入安装命令"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeTutorialEditor()">取消</button>
+        <button class="btn-primary" onclick="saveTutorial()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 报错编辑弹窗 ===== -->
+  <div class="modal" id="errorModal" style="display:none;">
+    <div class="modal-overlay" onclick="closeErrorEditor()"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="errorModalTitle">新增报错方案</h3>
+        <button class="close-btn" onclick="closeErrorEditor()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>所属软件</label>
+          <select id="errSoftware"></select>
+        </div>
+        <div class="form-group">
+          <label>报错标题</label>
+          <input type="text" id="errTitle" placeholder="如：pip 不是内部或外部命令">
+        </div>
+        <div class="form-group">
+          <label>搜索关键词</label>
+          <input type="text" id="errKeyword" placeholder="如：pip不是内部命令">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>适用版本</label>
+            <input type="text" id="errVersion" placeholder="如：Python 3.8+">
+          </div>
+          <div class="form-group">
+            <label>严重程度</label>
+            <select id="errSeverity">
+              <option value="high">高频</option>
+              <option value="medium" selected>常见</option>
+              <option value="low">偶尔</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>解决步骤（每行一步）</label>
+          <textarea id="errSolution" rows="8" placeholder="每行输入一个解决步骤"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeErrorEditor()">取消</button>
+        <button class="btn-primary" onclick="saveError()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 投稿详情弹窗 ===== -->
+  <div class="modal" id="submissionModal" style="display:none;">
+    <div class="modal-overlay" onclick="closeSubmissionDetail()"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>投稿详情</h3>
+        <button class="close-btn" onclick="closeSubmissionDetail()">✕</button>
+      </div>
+      <div class="modal-body" id="submissionDetailBody"></div>
+      <div class="modal-footer" id="submissionDetailFooter"></div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
