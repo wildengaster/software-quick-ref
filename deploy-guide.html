@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>部署指南 - 专业课软件操作速查工具</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #f5f7fa; color: #333; line-height: 1.7; }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #1a1a2e; }
+    .subtitle { text-align: center; color: #666; font-size: 16px; margin-bottom: 40px; }
+    
+    .step-card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 24px; border: 2px solid #e8ecf1; position: relative; }
+    .step-card:hover { border-color: #4361ee; box-shadow: 0 4px 20px rgba(67,97,238,0.1); }
+    .step-num { display: inline-block; background: #4361ee; color: white; width: 36px; height: 36px; border-radius: 50%; text-align: center; line-height: 36px; font-size: 18px; font-weight: bold; margin-right: 12px; }
+    .step-title { font-size: 20px; font-weight: 600; color: #1a1a2e; display: inline; }
+    .step-desc { margin-top: 16px; color: #555; font-size: 15px; }
+    
+    .deploy-btn { display: block; width: 100%; max-width: 400px; margin: 30px auto; padding: 16px 32px; background: #4361ee; color: white; text-align: center; font-size: 18px; font-weight: 600; border-radius: 12px; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
+    .deploy-btn:hover { background: #3a56d4; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67,97,238,0.3); }
+    
+    .info-box { background: #e8f4fd; border-radius: 12px; padding: 20px; margin-top: 16px; border-left: 4px solid #4361ee; }
+    .info-box h4 { color: #4361ee; margin-bottom: 8px; }
+    .info-box p { color: #555; font-size: 14px; }
+    
+    .warning-box { background: #fff8e1; border-radius: 12px; padding: 20px; margin-top: 16px; border-left: 4px solid #f9a825; }
+    .warning-box h4 { color: #f9a825; margin-bottom: 8px; }
+    .warning-box p { color: #555; font-size: 14px; }
+    
+    .success-box { background: #e8f5e9; border-radius: 12px; padding: 20px; margin-top: 16px; border-left: 4px solid #43a047; }
+    .success-box h4 { color: #43a047; margin-bottom: 8px; }
+    
+    .repo-link { display: inline-block; padding: 8px 16px; background: #f0f0f0; border-radius: 8px; color: #4361ee; font-size: 14px; text-decoration: none; margin: 8px 0; }
+    .repo-link:hover { background: #e0e0e0; }
+    
+    .timeline { margin-top: 20px; }
+    .timeline-item { padding: 12px 0; border-bottom: 1px dashed #ddd; display: flex; align-items: center; }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-icon { width: 32px; height: 32px; border-radius: 8px; text-align: center; line-height: 32px; margin-right: 12px; font-size: 16px; }
+    .timeline-icon.green { background: #e8f5e9; }
+    .timeline-icon.blue { background: #e3f2fd; }
+    .timeline-icon.orange { background: #fff3e0; }
+    .timeline-text { font-size: 15px; color: #555; }
+    
+    .footer { text-align: center; margin-top: 40px; color: #999; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 部署到 Render 云服务器</h1>
+    <p class="subtitle">专业课软件操作速查工具 - 真正后端部署指南</p>
+
+    <!-- 已完成状态 -->
+    <div class="step-card">
+      <span class="step-num">✓</span>
+      <span class="step-title">代码已上传到 GitHub</span>
+      <div class="step-desc">
+        <p>你的代码已经在 GitHub 仓库中，render.yaml 部署配置也已就位。</p>
+        <a class="repo-link" href="https://github.com/wildengaster/software-quick-ref" target="_blank">👉 wildengaster/software-quick-ref</a>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-card">
+      <span class="step-num">1</span>
+      <span class="step-title">注册 Render 账号（免费，无需信用卡）</span>
+      <div class="step-desc">
+        <p>打开 <strong>render.com</strong>，点击右上角 <strong>Get Started</strong>，用你的 <strong>GitHub 账号</strong> 登录（同一个 wildengaster 账号）。</p>
+        <div class="info-box">
+          <h4>💡 为什么选 GitHub 登录？</h4>
+          <p>用 GitHub 登录后，Render 可以直接访问你的仓库，一键部署不需要额外配置。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 - 一键部署按钮 -->
+    <div class="step-card">
+      <span class="step-num">2</span>
+      <span class="step-title">一键部署（点击下方按钮）</span>
+      <div class="step-desc">
+        <p>注册完成后，点击下方按钮，Render 会自动读取你的 <strong>render.yaml</strong> 配置，创建 Node.js 后端服务：</p>
+        <a class="deploy-btn" href="https://render.com/deploy?repo=https://github.com/wildengaster/software-quick-ref" target="_blank">
+          🚀 一键部署到 Render
+        </a>
+        <div class="info-box">
+          <h4>📋 部署时会发生什么？</h4>
+          <p>Render 自动执行：npm install → npm start → 启动 Express 后端服务器</p>
+          <p>配置已写在 render.yaml 中：<strong>Build Command: npm install</strong>，<strong>Start Command: npm start</strong>，<strong>Plan: Free</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card">
+      <span class="step-num">3</span>
+      <span class="step-title">等待部署完成（约 2-3 分钟）</span>
+      <div class="step-desc">
+        <p>点击部署后，Render 会开始构建和启动服务。在 Dashboard 中可以看到实时日志。</p>
+        <div class="timeline">
+          <div class="timeline-item">
+            <span class="timeline-icon blue">📦</span>
+            <span class="timeline-text">Cloning repository... 从 GitHub 拉取代码</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-icon blue">🔧</span>
+            <span class="timeline-text">Building... 执行 npm install 安装依赖</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-icon green">✅</span>
+            <span class="timeline-text">Deploying... 执行 npm start 启动服务器</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-icon green">🎉</span>
+            <span class="timeline-text">Live! 网站正式上线</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card">
+      <span class="step-num">4</span>
+      <span class="step-title">访问你的网站</span>
+      <div class="step-desc">
+        <p>部署完成后，Render 会给你一个公网地址：</p>
+        <div class="success-box">
+          <h4>🌐 你的网站地址</h4>
+          <p>前台：<strong>https://software-quick-ref.onrender.com</strong></p>
+          <p>后台：<strong>https://software-quick-ref.onrender.com/admin.html</strong></p>
+          <p>管理员账号：<strong>admin</strong> / 密码：<strong>admin123</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 注意事项 -->
+    <div class="step-card">
+      <span class="step-num">⚠️</span>
+      <span class="step-title">注意事项</span>
+      <div class="step-desc">
+        <div class="warning-box">
+          <h4>数据持久性说明</h4>
+          <p>Render 免费层的文件系统是临时的——服务休眠或重新部署后，投稿和访问统计数据会重置回到初始状态。</p>
+          <p>但<strong>教程和报错内容不受影响</strong>，因为每次启动都会从 db.js 自动初始化。</p>
+          <p>首次访问可能需要等待 5-30 秒（免费层服务休眠后需要冷启动）。</p>
+        </div>
+        <div class="info-box" style="margin-top: 12px;">
+          <h4>💡 如何让数据完全持久化？</h4>
+          <p>如果需要投稿和统计数据永久保存，可以后续接入 MongoDB Atlas 免费云数据库（512MB 免费），我来帮你改代码。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      专业课软件操作速查工具 · Node.js + Express 后端 · Render 免费部署
+    </div>
+  </div>
+</body>
+</html>
