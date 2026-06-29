@@ -7,9 +7,26 @@ const path = require('path');
 const DB_DIR = path.join(__dirname, 'database');
 const DB_FILE = path.join(DB_DIR, 'db.json');
 
-// 确保数据库目录存在
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
+// 检测是否为只读文件系统（Netlify Serverless 等）
+const IS_READ_ONLY = (() => {
+  try {
+    // 尝试写一个临时文件来检测文件系统是否可写
+    const testFile = path.join(__dirname, '.fs_test_' + Date.now());
+    fs.writeFileSync(testFile, 'test');
+    fs.unlinkSync(testFile);
+    return false;
+  } catch (e) {
+    return true;
+  }
+})();
+
+// 仅在可写文件系统中确保数据库目录存在
+if (!IS_READ_ONLY && !fs.existsSync(DB_DIR)) {
+  try {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+  } catch (e) {
+    // 忽略创建失败，后续操作会处理
+  }
 }
 
 // ===== 初始数据 =====
@@ -370,7 +387,8 @@ let dbCache = null;
 function loadDB() {
   if (dbCache) return dbCache;
   
-  if (fs.existsSync(DB_FILE)) {
+  // 只读环境或文件存在时尝试读取
+  if (!IS_READ_ONLY && fs.existsSync(DB_FILE)) {
     try {
       dbCache = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
       return dbCache;
@@ -379,22 +397,23 @@ function loadDB() {
     }
   }
   
-  // 文件不存在或损坏，从代码初始化
+  // 只读环境或文件不存在/损坏，从种子数据初始化（数据存在内存中）
   dbCache = createInitialDB();
-  saveDB();
+  if (!IS_READ_ONLY) {
+    saveDB();
+  }
   return dbCache;
 }
 
 function saveDB() {
-  if (dbCache) {
-    try {
-      if (!fs.existsSync(DB_DIR)) {
-        fs.mkdirSync(DB_DIR, { recursive: true });
-      }
-      fs.writeFileSync(DB_FILE, JSON.stringify(dbCache, null, 2), 'utf-8');
-    } catch (e) {
-      console.warn('数据库写入失败（文件系统可能为只读），数据暂存于内存:', e.message);
+  if (IS_READ_ONLY || !dbCache) return;
+  try {
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
     }
+    fs.writeFileSync(DB_FILE, JSON.stringify(dbCache, null, 2), 'utf-8');
+  } catch (e) {
+    console.warn('数据库写入失败（文件系统可能为只读），数据暂存于内存:', e.message);
   }
 }
 
@@ -403,7 +422,6 @@ const bcrypt = require('bcryptjs');
 function initAdminPassword() {
   const db = loadDB();
   if (db.admins && db.admins[0] && db.admins[0].password.startsWith('$2a$10$XQeJkQ')) {
-    // 初始占位密码，替换为真实哈希
     const hash = bcrypt.hashSync('admin123', 10);
     db.admins[0].password = hash;
     saveDB();
