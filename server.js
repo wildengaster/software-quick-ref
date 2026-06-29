@@ -513,18 +513,26 @@ app.get('/api/admin/stats', authMiddleware, (req, res) => {
 });
 
 // ========================================================================
-// 启动服务器
+// 启动服务器（仅本地开发时运行，Netlify 使用 serverless-http）
 // ========================================================================
 
-app.listen(PORT, () => {
-  initAdminPassword();
-  console.log('=================================');
-  console.log('  速查工具后端服务已启动');
-  console.log('=================================');
-  console.log(`  前台地址: http://localhost:${PORT}`);
-  console.log(`  后台地址: http://localhost:${PORT}/admin.html`);
-  console.log(`  API 地址: http://localhost:${PORT}/api`);
-  console.log('  管理员账号: admin');
-  console.log('  管理员密码: admin123');
-  console.log('=================================');
-});
+// 初始化管理员密码
+initAdminPassword();
+
+// 导出 Express 应用供 Netlify Functions 使用
+module.exports = app;
+
+// 仅在直接运行时启动服务器（非被 require 引入时）
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log('=================================');
+    console.log('  速查工具后端服务已启动');
+    console.log('=================================');
+    console.log(`  前台地址: http://localhost:${PORT}`);
+    console.log(`  后台地址: http://localhost:${PORT}/admin.html`);
+    console.log(`  API 地址: http://localhost:${PORT}/api`);
+    console.log('  管理员账号: admin');
+    console.log('  管理员密码: admin123');
+    console.log('=================================');
+  });
+}
