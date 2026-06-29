@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>腾讯云 CloudBase 部署指南</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      line-height: 1.8;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center;
+      color: #1a73e8;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #1a73e8;
+      font-size: 20px;
+      margin-top: 30px;
+      margin-bottom: 16px;
+      padding-left: 12px;
+      border-left: 4px solid #1a73e8;
+    }
+    h3 {
+      color: #444;
+      font-size: 16px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .step {
+      background: #f0f4ff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      position: relative;
+    }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #1a73e8;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: bold;
+      margin-right: 12px;
+    }
+    .step-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a73e8;
+    }
+    .step-content {
+      margin-top: 12px;
+      padding-left: 44px;
+    }
+    .step-content p {
+      margin-bottom: 8px;
+    }
+    .highlight {
+      background: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      color: #2e7d32;
+    }
+    .warning {
+      background: #fff3e0;
+      border: 1px solid #ffe0b2;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      color: #e65100;
+    }
+    .info {
+      background: #e3f2fd;
+      border: 1px solid #bbdefb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      color: #1565c0;
+    }
+    code {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+      color: #d32f2f;
+    }
+    pre {
+      background: #263238;
+      color: #eee;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #1a73e8;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #1557b0; }
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    .btn-secondary:hover { background: #eee; }
+    .toc {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .toc-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #1a73e8;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .toc li {
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .toc li:last-child { border-bottom: none; }
+    .toc a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .comparison-card {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .comparison-card h4 {
+      color: #1a73e8;
+      margin-bottom: 8px;
+    }
+    .faq-item {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    .faq-question {
+      font-weight: 600;
+      color: #1a73e8;
+      margin-bottom: 8px;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .tag-free { background: #e8f5e9; color: #2e7d32; }
+    .tag-recommend { background: #fff3e0; color: #e65100; }
+    .tag-advanced { background: #fce4ec; color: #c62828; }
+    @media (max-width: 600px) {
+      .container { padding: 20px; }
+      .comparison { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>腾讯云 CloudBase 部署指南</h1>
+    <p class="subtitle">专业课软件操作速查工具 · 国内访问无需翻墙 · 速度快稳定</p>
+
+    <div class="btn-group">
+      <a class="btn btn-primary" href="https://console.cloud.tencent.com/tcb" target="_blank">进入 CloudBase 控制台</a>
+      <a class="btn btn-secondary" href="https://github.com/wildengaster/software-quick-ref" target="_blank">查看 GitHub 仓库</a>
+    </div>
+
+    <div class="toc">
+      <div class="toc-title">目录</div>
+      <ul>
+        <li><a href="#overview">方案概述</a></li>
+        <li><a href="#method-a">方法 A：控制台一键部署（推荐）</a></li>
+        <li><a href="#method-b">方法 B：CLI 命令行部署</a></li>
+        <li><a href="#method-c">方法 C：Docker 镜像部署</a></li>
+        <li><a href="#verify">验证部署结果</a></li>
+        <li><a href="#faq">常见问题</a></li>
+      </ul>
+    </div>
+
+    <!-- 方案概述 -->
+    <h2 id="overview">方案概述</h2>
+
+    <div class="info">
+      <strong>为什么选择腾讯云 CloudBase？</strong><br>
+      ✅ 国内服务器，无需翻墙即可访问<br>
+      ✅ 上海/广州区域，速度快延迟低<br>
+      ✅ 云托管（Cloud Run）支持 Node.js 后端<br>
+      ✅ 有免费额度，适合学生项目<br>
+      ✅ 自动扩缩容，按使用量计费
+    </div>
+
+    <div class="comparison">
+      <div class="comparison-card">
+        <h4><span class="tag tag-recommend">推荐</span> 方法 A：控制台部署</h4>
+        <p>通过 CloudBase 网页控制台，连接 GitHub 仓库一键部署</p>
+        <p><strong>适合：</strong>不想装命令行工具的用户</p>
+        <p><strong>难度：</strong>⭐ 简单</p>
+      </div>
+      <div class="comparison-card">
+        <h4><span class="tag tag-advanced">高级</span> 方法 B：CLI 部署</h4>
+        <p>使用 CloudBase CLI 工具，本地命令行部署</p>
+        <p><strong>适合：</strong>熟悉命令行的开发者</p>
+        <p><strong>难度：</strong>⭐⭐ 中等</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ 数据持久化提示：</strong><br>
+      云托管容器文件系统是临时的，容器重启后本地数据会丢失。基础内容（教程、报错方案）会从代码中的种子数据自动恢复，但<strong>用户投稿和搜索记录</strong>在容器重启后会丢失。<br>
+      如需持久化，可后续升级接入 CloudBase 云数据库（详见 FAQ）。
+    </div>
+
+    <!-- 方法 A：控制台一键部署 -->
+    <h2 id="method-a">方法 A：控制台一键部署 <span class="tag tag-recommend">推荐</span></h2>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <span class="step-title">注册腾讯云账号</span>
+      <div class="step-content">
+        <p>访问 <a href="https://cloud.tencent.com/register" target="_blank">腾讯云注册页面</a>，使用微信扫码或手机号注册。</p>
+        <p>注册完成后，完成实名认证（学生可使用学生认证获取更多优惠）。</p>
+        <div class="highlight">
+          💡 学生用户推荐完成「<a href="https://cloud.tencent.com/act/campus" target="_blank">腾讯云学生认证</a>」，可获得免费云服务器等资源。
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <span class="step-title">创建 CloudBase 环境</span>
+      <div class="step-content">
+        <p>1. 进入 <a href="https://console.cloud.tencent.com/tcb" target="_blank">CloudBase 控制台</a></p>
+        <p>2. 点击「新建环境」</p>
+        <p>3. 填写环境名称，如：<code>quick-ref</code></p>
+        <p>4. 选择套餐：选择「按量付费」（有免费额度）</p>
+        <p>5. 选择地域：<strong>上海</strong> 或 <strong>广州</strong>（国内访问最快）</p>
+        <p>6. 点击「确定」创建环境</p>
+        <div class="info">
+          按量付费套餐的免费额度包含：5万次/月调用、1GB/月流量、500次/月云函数调用。对于学生项目绰绰有余。
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <span class="step-title">开通云托管服务</span>
+      <div class="step-content">
+        <p>1. 在 CloudBase 控制台左侧菜单，找到「云托管」</p>
+        <p>2. 点击「开通」云托管服务</p>
+        <p>3. 选择地域（与环境一致：上海或广州）</p>
+        <p>4. 开通完成后，进入云托管管理页面</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">4</span>
+      <span class="step-title">创建服务并部署</span>
+      <div class="step-content">
+        <p>1. 在云托管页面，点击「新建服务」</p>
+        <p>2. 服务名称：<code>software-quick-ref</code></p>
+        <p>3. 选择「<strong>代码部署</strong>」方式</p>
+        <p>4. 代码来源：选择「GitHub」</p>
+        <p>5. 如果是第一次使用，需要点击「授权」绑定 GitHub 账号</p>
+        <p>6. 选择仓库：<code>wildengaster/software-quick-ref</code></p>
+        <p>7. 分支选择：<code>main</code></p>
+        <p>8. 配置参数：</p>
+        <pre>
+监听端口：3000
+CPU：0.5核（最小规格即可）
+内存：0.5GB（最小规格即可）
+最小实例：0（无请求时自动缩为0，省钱）
+最大实例：3
+环境变量：NODE_ENV = production
+        </pre>
+        <p>9. 点击「部署」，等待构建完成（约 2-5 分钟）</p>
+        <div class="highlight">
+          💡 设置最小实例为 0 可以在无请求时不运行容器，大幅节省费用。冷启动约需 5-10 秒。
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">5</span>
+      <span class="step-title">获取访问地址</span>
+      <div class="step-content">
+        <p>部署成功后，CloudBase 会自动分配一个访问域名，格式类似：</p>
+        <pre>https://quick-ref-xxxxx.sh.run.tcloudbase.com</pre>
+        <p>你也可以在服务设置中绑定自定义域名。</p>
+        <div class="info">
+          🎉 现在可以直接在浏览器访问这个地址，国内无需翻墙！
+        </div>
+      </div>
+    </div>
+
+    <!-- 方法 B：CLI 命令行部署 -->
+    <h2 id="method-b">方法 B：CLI 命令行部署 <span class="tag tag-advanced">高级</span></h2>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <span class="step-title">安装 CloudBase CLI</span>
+      <div class="step-content">
+        <pre>npm install -g @cloudbase/cli</pre>
+        <p>验证安装：</p>
+        <pre>tcb -v</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <span class="step-title">登录腾讯云</span>
+      <div class="step-content">
+        <pre>tcb login</pre>
+        <p>在浏览器中完成授权后返回终端。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <span class="step-title">创建 cloudbaserc.json</span>
+      <div class="step-content">
+        <p>项目根目录已包含 <code>container.config.json</code>，CLI 部署还需创建 <code>cloudbaserc.json</code>：</p>
+        <pre>{
+  "envId": "你的环境ID",
+  "version": "2.0",
+  "$schema": "https://framework-1258016615.tcloudbase.com/schema/latest.json",
+  "framework": {
+    "name": "software-quick-ref",
+    "plugins": {
+      "container": {
+        "use": "@cloudbase/container-framework",
+        "inputs": {
+          "serviceName": "software-quick-ref",
+          "containerConfig": {
+            "port": 3000,
+            "cpu": 0.5,
+            "mem": 0.5,
+            "minNum": 0,
+            "maxNum": 3,
+            "envVariables": {
+              "NODE_ENV": "production"
+            }
+          },
+          "codeDetail": {
+            "codeType": "git",
+            "gitUrl": "https://github.com/wildengaster/software-quick-ref",
+            "gitBranch": "main"
+          }
+        }
+      }
+    }
+  }
+}</pre>
+        <p>将 <code>envId</code> 替换为你在步骤 2 创建的环境 ID。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">4</span>
+      <span class="step-title">执行部署</span>
+      <div class="step-content">
+        <pre>tcb framework deploy</pre>
+        <p>等待部署完成，CLI 会输出访问地址。</p>
+      </div>
+    </div>
+
+    <!-- 方法 C：Docker 镜像部署 -->
+    <h2 id="method-c">方法 C：Docker 镜像部署 <span class="tag tag-advanced">高级</span></h2>
+
+    <div class="info">
+      此方法需要先构建 Docker 镜像并推送到腾讯云容器镜像服务（TCR），适合需要自定义构建流程的场景。
+    </div>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <span class="step-title">构建并推送 Docker 镜像</span>
+      <div class="step-content">
+        <pre># 在项目目录下构建镜像
+docker build -t ccr.ccs.tencentyun.com/quick-ref/software-quick-ref:latest .
+
+# 推送到腾讯云容器镜像服务
+docker push ccr.ccs.tencentyun.com/quick-ref/software-quick-ref:latest</pre>
+        <p>需要先在 <a href="https://console.cloud.tencent.com/tcr" target="_blank">腾讯云 TCR 控制台</a> 创建命名空间和镜像仓库。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <span class="step-title">在云托管中创建服务</span>
+      <div class="step-content">
+        <p>在云托管控制台选择「镜像部署」，填入镜像地址和配置参数（端口 3000，CPU 0.5核，内存 0.5GB）。</p>
+      </div>
+    </div>
+
+    <!-- 验证部署结果 -->
+    <h2 id="verify">验证部署结果</h2>
+
+    <div class="step">
+      <span class="step-number">✓</span>
+      <span class="step-title">部署成功后检查</span>
+      <div class="step-content">
+        <p>1. 访问分配的域名，检查首页是否正常显示</p>
+        <p>2. 测试搜索功能：<code>https://你的域名/api/search?q=python</code></p>
+        <p>3. 测试管理后台：<code>https://你的域名/admin.html</code></p>
+        <p>4. 用管理员账号登录：<code>admin</code> / <code>admin123</code></p>
+        <p>5. 检查 API 是否响应：</p>
+        <pre>
+# 获取软件分类
+curl https://你的域名/api/software
+
+# 获取教程列表
+curl https://你的域名/api/tutorials
+
+# 获取报错方案
+curl https://你的域名/api/errors
+        </pre>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <h2 id="faq">常见问题</h2>
+
+    <div class="faq-item">
+      <div class="faq-question">Q: 需要付费吗？</div>
+      <p>A: 按量付费套餐有免费额度。云托管按 CPU/内存使用时长计费，设置最小实例为 0 后，无请求时不收费。学生项目月费用通常在 <strong>0-5 元</strong>。</p>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Q: 数据会丢失吗？</div>
+      <p>A: 云托管容器文件系统是临时的，容器重启后本地文件变更会丢失。但基础数据（教程、报错方案）已在代码中作为种子数据，重启后自动恢复。仅<strong>用户投稿</strong>和<strong>搜索记录</strong>会丢失。</p>
+      <div class="info">
+        如需数据持久化，可接入 CloudBase 云数据库：<br>
+        1. 在控制台开通「数据库」服务<br>
+        2. 将 db.js 中的 JSON 操作替换为云数据库 SDK 操作<br>
+        3. 数据将永久保存在云数据库中，不受容器重启影响
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Q: 冷启动太慢怎么办？</div>
+      <p>A: 设置最小实例为 0 时，首次请求需要冷启动（约 5-10 秒）。如果希望更快的响应，可将最小实例设为 1（保持一个常驻实例），但会产生持续费用。</p>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Q: 如何绑定自定义域名？</div>
+      <p>A: 在云托管服务设置中，点击「自定义域名」，添加你的域名并配置 DNS 解析指向 CloudBase 提供的 CNAME 地址。域名需要已备案。</p>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Q: 如何更新部署？</div>
+      <p>A: 推送代码到 GitHub main 分支后，在云托管控制台点击「部署」→「重新部署」，或设置自动部署（每次 push 自动触发）。</p>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Q: 之前在 Render 的部署还需要保留吗？</div>
+      <p>A: Render 部署可作为海外访问的备用。如果你只关注国内用户，可以删除 Render 的部署。两个平台可以同时运行，互不影响。</p>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Q: 访问速度慢怎么办？</div>
+      <p>A: 确保选择了上海或广州地域。如果仍然慢，可以搭配腾讯云 CDN 加速：在控制台开通 CDN，将域名接入 CDN 加速。</p>
+    </div>
+
+    <!-- 部署后管理 -->
+    <h2>部署后管理</h2>
+
+    <div class="step">
+      <span class="step-number">🔧</span>
+      <span class="step-title">日常管理操作</span>
+      <div class="step-content">
+        <p><strong>查看运行状态：</strong>CloudBase 控制台 → 云托管 → 选择服务 → 查看实例状态和日志</p>
+        <p><strong>查看访问日志：</strong>服务详情 → 日志面板 → 查看实时请求日志</p>
+        <p><strong>修改配置：</strong>服务设置 → 修改 CPU/内存/实例数等参数 → 保存并重新部署</p>
+        <p><strong>停止服务：</strong>服务详情 → 点击「停止」（停止后不再产生费用）</p>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f0f4ff; border-radius: 12px;">
+      <p style="font-size: 18px; font-weight: 600; color: #1a73e8;">部署遇到问题？</p>
+      <p>查看 <a href="https://cloud.tencent.com/document/product/876" target="_blank" style="color: #1a73e8;">CloudBase 官方文档</a> 或在腾讯云社区寻求帮助</p>
+    </div>
+  </div>
+</body>
+</html>
